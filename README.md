@@ -58,7 +58,7 @@ fastmcp run src/uniprot_mcp/server.py:mcp --transport http --port 8007
 Add the server using the Claude Code CLI:
 
 ```bash
-claude mcp add uniprot-unipressed-mcp -- uvx run git+https://github.com/pansapiens/uniprot-unipressed-mcp
+claude mcp add uniprot-unipressed-mcp -- uvx git+https://github.com/pansapiens/uniprot-unipressed-mcp
 ```
 
 #### Other MCP clients
@@ -70,7 +70,7 @@ Or manually add to your MCP configuration (Claude Code, Cursor, etc.):
   "mcpServers": {
     "uniprot-unipressed-mcp": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/pansapiens/uniprot-unipressed-mcp", "uniprot-mcp"]
+      "args": ["git+https://github.com/pansapiens/uniprot-unipressed-mcp"]
     }
   }
 }
