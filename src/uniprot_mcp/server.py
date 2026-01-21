@@ -8,7 +8,7 @@
 # ///
 """UniProt MCP Server - FastMCP server providing UniProt search and fetch tools."""
 
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp import FastMCP
 from toon_format import encode
@@ -17,18 +17,18 @@ from uniprot_mcp.clients import get_client, validate_database, VALID_DATABASES
 from uniprot_mcp.pagination import decode_cursor, paginate_results
 
 
-def _format_response(data: dict[str, Any], format: str) -> str | dict[str, Any]:
+def _format_response(data: dict[str, Any], response_format: str) -> str | dict[str, Any]:
     """
     Format response data based on the requested format.
     
     Args:
         data: The response data dictionary
-        format: The format to use ('toon' or 'json')
+        response_format: The format to use ('toon' or 'json')
     
     Returns:
-        TOON-formatted string if format='toon', otherwise the original dict
+        TOON-formatted string if response_format='toon', otherwise the original dict
     """
-    if format == "toon":
+    if response_format == "toon":
         return encode(data)
     return data
 
@@ -174,17 +174,17 @@ Args:
     cursor: Pagination cursor from a previous search result's 'nextCursor' field.
         Pass this to retrieve the next page of results.
     
-    format: Response format. One of: 'toon' (default) or 'json'.
+    response_format: Response format. One of: 'toon' (default) or 'json'.
         - 'toon': Returns response in TOON format (token-efficient compression)
         - 'json': Returns response in JSON format
 
 Returns:
-    When format='toon': TOON-formatted string with:
+    When response_format='toon': TOON-formatted string with:
     - results: Array of matching protein entries
     - total: Total number of matching entries (if available)
     - nextCursor: Cursor string for retrieving the next page (if more results exist)
     
-    When format='json': JSON object with:
+    When response_format='json': JSON object with:
     - results: Array of matching protein entries
     - total: Total number of matching entries (if available)
     - nextCursor: Cursor string for retrieving the next page (if more results exist)
@@ -262,17 +262,17 @@ Args:
         Cross-references:
         - See https://www.uniprot.org/help/return_fields for cross-reference fields
     
-    format: Response format. One of: 'toon' (default) or 'json'.
+    response_format: Response format. One of: 'toon' (default) or 'json'.
         - 'toon': Returns response in TOON format (token-efficient compression)
         - 'json': Returns response in JSON format
 
 Returns:
-    When format='toon': TOON-formatted string with:
+    When response_format='toon': TOON-formatted string with:
     - results: Array of fetched protein entries
     - found: Number of entries successfully retrieved
     - requested: Number of IDs that were requested
     
-    When format='json': JSON object with:
+    When response_format='json': JSON object with:
     - results: Array of fetched protein entries
     - found: Number of entries successfully retrieved
     - requested: Number of IDs that were requested
@@ -285,7 +285,7 @@ def _uniprot_search_impl(
     limit: int = 10,
     fields: list[str] | None = None,
     cursor: str | None = None,
-    format: str = "toon",
+    response_format: str = "toon",
 ) -> dict[str, Any] | str:
     """
     Implementation of UniProt search.
@@ -302,7 +302,7 @@ def _uniprot_search_impl(
     if limit < 1 or limit > 100:
         raise ValueError("Limit must be between 1 and 100")
     
-    if format not in ("toon", "json"):
+    if response_format not in ("toon", "json"):
         raise ValueError("Format must be 'toon' or 'json'")
 
     # Decode cursor to get offset
@@ -339,14 +339,14 @@ def _uniprot_search_impl(
             break
 
     result = paginate_results(results, offset, limit)
-    return _format_response(result, format)
+    return _format_response(result, response_format)
 
 
 def _uniprot_fetch_impl(
     ids: list[str],
     database: str = "uniprotkb",
     fields: list[str] | None = None,
-    format: str = "toon",
+    response_format: str = "toon",
 ) -> dict[str, Any] | str:
     """
     Implementation of UniProt fetch.
@@ -357,7 +357,7 @@ def _uniprot_fetch_impl(
     # Validate inputs
     db = validate_database(database)
     
-    if format not in ("toon", "json"):
+    if response_format not in ("toon", "json"):
         raise ValueError("Format must be 'toon' or 'json'")
 
     if not ids:
@@ -416,7 +416,7 @@ def _uniprot_fetch_impl(
         "found": len(results),
         "requested": len(clean_ids),
     }
-    return _format_response(result, format)
+    return _format_response(result, response_format)
 
 
 # Register tools with FastMCP
@@ -427,10 +427,10 @@ def uniprot_search(
     limit: int = 10,
     fields: list[str] | None = None,
     cursor: str | None = None,
-    format: str = "toon",
+    response_format: Literal["toon", "json"] = "toon",
 ) -> dict[str, Any] | str:
     """Search the UniProt protein database."""
-    return _uniprot_search_impl(query, database, limit, fields, cursor, format)
+    return _uniprot_search_impl(query, database, limit, fields, cursor, response_format)
 
 
 @mcp.tool(description=FETCH_DESCRIPTION)
@@ -438,10 +438,10 @@ def uniprot_fetch(
     ids: list[str],
     database: str = "uniprotkb",
     fields: list[str] | None = None,
-    format: str = "toon",
+    response_format: Literal["toon", "json"] = "toon",
 ) -> dict[str, Any] | str:
     """Fetch specific protein entries by their UniProt accession IDs."""
-    return _uniprot_fetch_impl(ids, database, fields, format)
+    return _uniprot_fetch_impl(ids, database, fields, response_format)
 
 
 def main():

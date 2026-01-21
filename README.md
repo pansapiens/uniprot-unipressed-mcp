@@ -80,14 +80,14 @@ Or manually add to your MCP configuration (Claude Code, Cursor, etc.):
 
 Tool responses are returned in [TOON format](https://github.com/toon-format/toon-python) by default, which provides significant token reduction (typically 40%+ smaller than JSON) without any information loss. TOON is a compact, YAML-like, human-readable serialization format optimised for LLM contexts.
 
-To receive JSON-formatted responses instead, use the `format` parameter with value `"json"`:
+To receive JSON-formatted responses instead, use the `response_format` parameter with value `"json"`:
 
 ```python
 # TOON format (default)
 result = uniprot_search(query="gene:BRCA1")
 
 # JSON format
-result = uniprot_search(query="gene:BRCA1", format="json")
+result = uniprot_search(query="gene:BRCA1", response_format="json")
 ```
 
 ## Tools
@@ -105,7 +105,7 @@ Search the UniProt protein database using query syntax.
 | limit | integer | No | 10 | Results per page (1-100) |
 | fields | list[string] | No | None | Return fields to include |
 | cursor | string | No | None | Pagination cursor from previous result |
-| format | string | No | "toon" | Response format: "toon" (default) or "json" |
+| response_format | string | No | "toon" | Response format: "toon" (default) or "json" |
 
 **Example queries:**
 
@@ -122,7 +122,7 @@ reviewed:true                           # Only Swiss-Prot reviewed entries
 
 **Response:**
 
-By default, responses are returned in TOON format (a compact string). When `format="json"` is specified, responses are JSON objects:
+By default, responses are returned in TOON format (a compact string). When `response_format="json"` is specified, responses are JSON objects:
 
 **TOON format (default):**
 ```
@@ -154,7 +154,7 @@ Fetch specific protein entries by their UniProt accession IDs.
 | ids | list[string] | Yes | - | UniProt accession IDs to fetch |
 | database | string | No | "uniprotkb" | Database to fetch from |
 | fields | list[string] | No | None | Return fields to include |
-| format | string | No | "toon" | Response format: "toon" (default) or "json" |
+| response_format | string | No | "toon" | Response format: "toon" (default) or "json" |
 
 **Example:**
 
@@ -164,7 +164,7 @@ uniprot_fetch(ids=["P62988", "A0A0C5B5G6"])
 
 **Response:**
 
-By default, responses are returned in TOON format (a more token efficient string). When `format="json"` is specified, responses are JSON objects:
+By default, responses are returned in TOON format (a more token efficient string). When `response_format="json"` is specified, responses are JSON objects:
 
 **TOON format (default):**
 ```
