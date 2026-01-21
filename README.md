@@ -8,6 +8,7 @@ An MCP (Model Context Protocol) server that provides tools for querying the [Uni
 - **Fetch specific entries** by accession ID
 - **Pagination** for large result sets
 - **Field selection** to control returned data
+- **TOON format responses** by default - responses are returned in [TOON format](https://github.com/toon-format/toon-python), which significantly reduces token usage (typically 40%+ reduction) without information loss
 
 ## Installation
 
@@ -75,6 +76,20 @@ Or manually add to your MCP configuration (Claude Code, Cursor, etc.):
 }
 ```
 
+## Response Format
+
+Tool responses are returned in [TOON format](https://github.com/toon-format/toon-python) by default, which provides significant token reduction (typically 40%+ smaller than JSON) without any information loss. TOON is a compact, YAML-like, human-readable serialization format optimised for LLM contexts.
+
+To receive JSON-formatted responses instead, use the `format` parameter with value `"json"`:
+
+```python
+# TOON format (default)
+result = uniprot_search(query="gene:BRCA1")
+
+# JSON format
+result = uniprot_search(query="gene:BRCA1", format="json")
+```
+
 ## Tools
 
 ### uniprot_search
@@ -90,6 +105,7 @@ Search the UniProt protein database using query syntax.
 | limit | integer | No | 10 | Results per page (1-100) |
 | fields | list[string] | No | None | Return fields to include |
 | cursor | string | No | None | Pagination cursor from previous result |
+| format | string | No | "toon" | Response format: "toon" (default) or "json" |
 
 **Example queries:**
 
@@ -106,6 +122,19 @@ reviewed:true                           # Only Swiss-Prot reviewed entries
 
 **Response:**
 
+By default, responses are returned in TOON format (a compact string). When `format="json"` is specified, responses are JSON objects:
+
+**TOON format (default):**
+```
+results[10]:
+  - entryType: UniProtKB reviewed (Swiss-Prot)
+    primaryAccession: P38398
+    secondaryAccessions[7]: E9PFZ0,O15129,Q1RMC1,Q3LRJ0,Q3LRJ6,Q6IN79,Q7KYU9
+    uniProtkbId: BRCA1_HUMAN
+    ...etc...
+```
+
+**JSON format:**
 ```json
 {
   "results": [...],
@@ -125,6 +154,7 @@ Fetch specific protein entries by their UniProt accession IDs.
 | ids | list[string] | Yes | - | UniProt accession IDs to fetch |
 | database | string | No | "uniprotkb" | Database to fetch from |
 | fields | list[string] | No | None | Return fields to include |
+| format | string | No | "toon" | Response format: "toon" (default) or "json" |
 
 **Example:**
 
@@ -134,6 +164,19 @@ uniprot_fetch(ids=["P62988", "A0A0C5B5G6"])
 
 **Response:**
 
+By default, responses are returned in TOON format (a more token efficient string). When `format="json"` is specified, responses are JSON objects:
+
+**TOON format (default):**
+```
+results[10]:
+  - entryType: UniProtKB reviewed (Swiss-Prot)
+    primaryAccession: P38398
+    secondaryAccessions[7]: E9PFZ0,O15129,Q1RMC1,Q3LRJ0,Q3LRJ6,Q6IN79,Q7KYU9
+    uniProtkbId: BRCA1_HUMAN
+    ...etc...
+```
+
+**JSON format:**
 ```json
 {
   "results": [...],
@@ -200,6 +243,12 @@ See the [UniProt return fields documentation](https://www.uniprot.org/help/retur
 }
 ```
 
+### Testing using the MCP Inspector
+
+```bash
+npx @modelcontextprotocol/inspector uv --directory $(pwd) run -m uniprot_mcp.server
+```
+
 ### Running tests
 
 ```bash
@@ -242,6 +291,7 @@ RUN_INTEGRATION_TESTS=1 uv run pytest --cov=uniprot_mcp
 - [unipressed Documentation](https://multimeric.github.io/Unipressed/)
 - [FastMCP Documentation](https://gofastmcp.com/)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
+- [TOON Format](https://github.com/toon-format/toon-python) - Token-optimised serialization format used for responses
 
 ## Licence
 

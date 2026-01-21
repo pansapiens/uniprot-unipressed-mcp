@@ -40,6 +40,5 @@ htmlcov/
 tests/
 
 # Plans and config
-PLAN.md
 .cursor/
 

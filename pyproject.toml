@@ -26,6 +26,7 @@ classifiers = [
 
 dependencies = [
     "fastmcp>=2.0.0,<3.0.0",
+    "toon-format>=0.9.0b1",
     "unipressed>=1.4.0,<2.0.0",
 ]
 

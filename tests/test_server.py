@@ -1,6 +1,7 @@
 """Tests for MCP server tools."""
 
 import os
+from typing import Any
 
 import pytest
 
@@ -45,6 +46,11 @@ class TestUniprotSearchValidation:
         """Invalid cursor should raise ValueError."""
         with pytest.raises(ValueError, match="Invalid cursor"):
             _uniprot_search_impl(query="gene:BRCA1", cursor="bad-cursor!!!")
+    
+    def test_invalid_format_raises(self):
+        """Invalid format should raise ValueError."""
+        with pytest.raises(ValueError, match="Format must be"):
+            _uniprot_search_impl(query="gene:BRCA1", format="invalid")
 
 
 class TestUniprotFetchValidation:
@@ -64,6 +70,11 @@ class TestUniprotFetchValidation:
         """Invalid database should raise ValueError."""
         with pytest.raises(ValueError, match="Invalid database"):
             _uniprot_fetch_impl(ids=["P62988"], database="invalid")
+    
+    def test_invalid_format_raises(self):
+        """Invalid format should raise ValueError."""
+        with pytest.raises(ValueError, match="Format must be"):
+            _uniprot_fetch_impl(ids=["P62988"], format="invalid")
 
 
 class TestUniprotSearchIntegration:
@@ -73,7 +84,8 @@ class TestUniprotSearchIntegration:
     @skip_integration
     def test_basic_search(self):
         """Basic search should return results."""
-        result = _uniprot_search_impl(query="gene:BRCA1 AND organism_id:9606", limit=5)
+        result = _uniprot_search_impl(query="gene:BRCA1 AND organism_id:9606", limit=5, format="json")
+        assert isinstance(result, dict)
         assert "results" in result
         assert isinstance(result["results"], list)
         assert len(result["results"]) <= 5
@@ -86,7 +98,9 @@ class TestUniprotSearchIntegration:
             query="accession:P62988",
             fields=["accession", "gene_names"],
             limit=1,
+            format="json",
         )
+        assert isinstance(result, dict)
         assert "results" in result
         if result["results"]:
             entry = result["results"][0]
@@ -101,7 +115,8 @@ class TestUniprotFetchIntegration:
     @skip_integration
     def test_fetch_single_id(self):
         """Fetching a single ID should return one result."""
-        result = _uniprot_fetch_impl(ids=["P62988"])
+        result = _uniprot_fetch_impl(ids=["P62988"], format="json")
+        assert isinstance(result, dict)
         assert "results" in result
         assert result["found"] == 1
         assert result["requested"] == 1
@@ -110,7 +125,8 @@ class TestUniprotFetchIntegration:
     @skip_integration
     def test_fetch_multiple_ids(self):
         """Fetching multiple IDs should return multiple results."""
-        result = _uniprot_fetch_impl(ids=["A0A0C5B5G6", "A0A1B0GTW7"])
+        result = _uniprot_fetch_impl(ids=["A0A0C5B5G6", "A0A1B0GTW7"], format="json")
+        assert isinstance(result, dict)
         assert "results" in result
         assert result["requested"] == 2
         assert result["found"] <= 2
@@ -119,7 +135,8 @@ class TestUniprotFetchIntegration:
     @skip_integration
     def test_fetch_nonexistent_id(self):
         """Fetching nonexistent ID should return empty results."""
-        result = _uniprot_fetch_impl(ids=["NOTREAL123"])
+        result = _uniprot_fetch_impl(ids=["NOTREAL123"], format="json")
+        assert isinstance(result, dict)
         assert result["found"] == 0
         assert result["requested"] == 1
 
