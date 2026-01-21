@@ -29,5 +29,5 @@ def test_response_format_parameter_in_implementation():
     assert "response_format" in sig_fetch.parameters, "response_format parameter missing from _uniprot_fetch_impl"
     
     # Verify default value
-    assert sig_search.parameters["response_format"].default == "toon"
-    assert sig_fetch.parameters["response_format"].default == "toon"
+    assert sig_search.parameters["response_format"].default == "json"
+    assert sig_fetch.parameters["response_format"].default == "json"

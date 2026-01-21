@@ -174,17 +174,17 @@ Args:
     cursor: Pagination cursor from a previous search result's 'nextCursor' field.
         Pass this to retrieve the next page of results.
     
-    response_format: Response format. One of: 'toon' (default) or 'json'.
-        - 'toon': Returns response in TOON format (token-efficient compression)
+    response_format: Response format. One of: 'json' (default) or 'toon'.
         - 'json': Returns response in JSON format
+        - 'toon': Returns response in TOON format
 
 Returns:
-    When response_format='toon': TOON-formatted string with:
+    When response_format='json': JSON object with:
     - results: Array of matching protein entries
     - total: Total number of matching entries (if available)
     - nextCursor: Cursor string for retrieving the next page (if more results exist)
     
-    When response_format='json': JSON object with:
+    When response_format='toon': TOON-formatted string with:
     - results: Array of matching protein entries
     - total: Total number of matching entries (if available)
     - nextCursor: Cursor string for retrieving the next page (if more results exist)
@@ -262,17 +262,17 @@ Args:
         Cross-references:
         - See https://www.uniprot.org/help/return_fields for cross-reference fields
     
-    response_format: Response format. One of: 'toon' (default) or 'json'.
-        - 'toon': Returns response in TOON format (token-efficient compression)
+    response_format: Response format. One of: 'json' (default) or 'toon'.
         - 'json': Returns response in JSON format
+        - 'toon': Returns response in TOON format
 
 Returns:
-    When response_format='toon': TOON-formatted string with:
+    When response_format='json': JSON object with:
     - results: Array of fetched protein entries
     - found: Number of entries successfully retrieved
     - requested: Number of IDs that were requested
     
-    When response_format='json': JSON object with:
+    When response_format='toon': TOON-formatted string with:
     - results: Array of fetched protein entries
     - found: Number of entries successfully retrieved
     - requested: Number of IDs that were requested
@@ -285,7 +285,7 @@ def _uniprot_search_impl(
     limit: int = 10,
     fields: list[str] | None = None,
     cursor: str | None = None,
-    response_format: str = "toon",
+    response_format: str = "json",
 ) -> dict[str, Any] | str:
     """
     Implementation of UniProt search.
@@ -346,7 +346,7 @@ def _uniprot_fetch_impl(
     ids: list[str],
     database: str = "uniprotkb",
     fields: list[str] | None = None,
-    response_format: str = "toon",
+    response_format: str = "json",
 ) -> dict[str, Any] | str:
     """
     Implementation of UniProt fetch.
@@ -427,7 +427,7 @@ def uniprot_search(
     limit: int = 10,
     fields: list[str] | None = None,
     cursor: str | None = None,
-    response_format: Literal["toon", "json"] = "toon",
+    response_format: Literal["toon", "json"] = "json",
 ) -> dict[str, Any] | str:
     """Search the UniProt protein database."""
     return _uniprot_search_impl(query, database, limit, fields, cursor, response_format)
@@ -438,7 +438,7 @@ def uniprot_fetch(
     ids: list[str],
     database: str = "uniprotkb",
     fields: list[str] | None = None,
-    response_format: Literal["toon", "json"] = "toon",
+    response_format: Literal["toon", "json"] = "json",
 ) -> dict[str, Any] | str:
     """Fetch specific protein entries by their UniProt accession IDs."""
     return _uniprot_fetch_impl(ids, database, fields, response_format)
